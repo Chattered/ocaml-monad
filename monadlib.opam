@@ -1,0 +1,16 @@
+opam-version: "2.0"
+maintainer: "phil.scott@ed.ac.uk"
+homepage: "https://github.com/Chattered/ocaml-monad"
+dev-repo: "git+https://github.com/Chattered/ocaml-monad.git"
+bug-reports: "https://github.com/Chattered/ocaml-monad/issues"
+authors: ["Phil Scott"]
+build: [
+  ["dune" "build" "-p" name "-j" jobs]
+]
+depends: [
+  "ocaml" {>= "4.07.0"}
+  "dune" {build & >= "1.11.0"}
+  "batteries" {>= "2.0"}
+  "ocamlbuild" {build}
+]
+synopsis: "A starter library for monads, with transformers and applicatives"

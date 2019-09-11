@@ -19,11 +19,10 @@ Applicatives are provided and the implementation of applicative functions overri
 Installation
 ------------
 
-    $ ocaml setup.ml -configure
-    $ ocaml setup.ml -build
-    $ ocaml setup.ml -install
+    $ dune build @all
+    $ dune install
 
 For documentation:
 
-    $ ocaml setup.ml -doc
+    $ dune build @doc
 

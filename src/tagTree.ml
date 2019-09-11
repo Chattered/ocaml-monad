@@ -27,13 +27,7 @@ struct
   type tag  = Tag.t
   type 'a m = (Tag.t,'a LazyList.t) node
 
-  let root (Node (x, _))      = x
-  let children (Node (_, cs)) = cs
-
   let return x = Node (singleton x, nil)
-
-  let rec to_list (Node (x, cs)) =
-    x ^@^ concat_map to_list (map snd cs)
 
   let branch bs =
     if is_empty (drop 1 bs) then
@@ -50,7 +44,6 @@ struct
     length xs + fold_left (+) 0 (map f cs)
 
   (* Helper functions for join and plus. *)
-  let map1 f xs = map (fun (x,y) -> (f x, y)) xs
   let map2 f xs = map (fun (x,y) -> (x, f y)) xs
 
   let rec map_tree f (Node (xs,cs)) =
@@ -176,31 +169,6 @@ struct
   (*       fold_right1 lplus (emptied ^:^ unfolds t) *)
   (*   in join (map_tree (fun xs -> fold_right lplus (zero ()) (map f xs)) t) *)
 
-  let rec close_cases (Node (xs, cs)) =
-    let descendents cs =
-      any (fun (_, Node (xs', gcs))
-      -> is_non_empty xs' || is_non_empty gcs) cs
-    in let ncs = map2 close_cases cs in
-       if descendents ncs then Node (xs, ncs) else Node (xs, nil)
-
-  let rec unzip_tree (Node ((x,y), cs)) =
-    let (xcs, ycs) = LazyList.unzip (map (fun (tag, c) ->
-      let (xc, yc) = unzip_tree c in
-      ((tag, xc), (tag, yc))) cs)
-    in Node (x, xcs), Node (y, ycs)
-
-  (* Recursively promote values that appear at the same level. *)
-  let promote ?(cmp = (=)) tree =
-    let rec promote (Node (xs, cs)) =
-      if is_empty cs then Node (xs, nil) else
-        let ncs   = map2 promote cs in
-        let cdata = map (fun (_, Node (xs,_)) -> xs) ncs in
-        let ps = fold_left1 (intersect_class ~cmp:cmp) cdata in
-        let f (Node (xs',cs')) =
-          Node (difference cmp xs' ps, cs') in
-        Node (xs ^@^ ps, map2 f ncs)
-    in close_cases (promote tree)
-
   (* Find difference between trees respecting assumption strength. The *)
   (* right tree is assumed to be larger and its topology is preserved. *)
   let difference p t1 t2 =
@@ -238,12 +206,12 @@ struct
     map (fun x -> x) xs
     ^@^ concat_map (fun (_, c) -> to_list c) cs
 
-  let rec collapse t = Node (to_list t, nil)
+  let collapse t = Node (to_list t, nil)
 
   let print p t =
     let rec print i (Node (xs, cs)) =
       let indent () =
-        for j = 0 to i do
+        for _ = 0 to i do
           printf " "
         done
       in
@@ -251,7 +219,7 @@ struct
       printf "\n";
       iter
         (fun (t,c) ->
-          for j = 0 to i do
+          for _ = 0 to i do
             printf " "
           done;
           indent (); Tag.print t; printf ": ";

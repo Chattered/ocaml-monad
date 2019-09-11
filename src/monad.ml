@@ -372,7 +372,7 @@ struct
                       | Result x -> f x
                     let zero ()  = Error E.defaultError
                     let plus x y = match x with
-                        Error  e -> y
+                        Error  _ -> y
                       | Result x -> Result x
                     let null x   = match x with
                         Error _  -> true
@@ -480,7 +480,7 @@ struct
                   f x s'
               end)
   let read s    = (s,s)
-  let write x s = (x,())
+  let write x _ = (x,())
   let run x s   = x s
   let eval x s  = snd (x s)
   let modify f  = bind read (fun s -> write (f s))
@@ -496,7 +496,7 @@ struct
                   M.bind (xf s) (fun (s',x) -> (f x) s')
               end)
   let read  s   = M.return (s,s)
-  let write x s = M.return (x,())
+  let write x _ = M.return (x,())
   let modify f  = bind read (fun s -> write (f s))
   let run   x s = x s
   let eval  x s = M.lift1 snd (x s)
@@ -538,7 +538,6 @@ module WriterT(Mon : Monoid)(M : BatInterfaces.Monad) =
 struct
   module M = Make(M)
   module W = Writer(Mon)
-  type t = Mon.t
   include Make(struct
                 module WM = Make(W)
                 type 'a m = 'a W.m M.m
@@ -565,7 +564,7 @@ struct
   module Option = Make(Option)
   let liftp2 p x y = match x,y with
       None, _        -> true
-    | Some x, None   -> false
+    | Some _, None   -> false
     | Some x, Some y -> p x y
 
   include OptionT(C)
@@ -619,5 +618,5 @@ struct
   let nub p xs s = C.nub (cmp_on p) (xs s)
 
   let read s    = C.return (s,s)
-  let write x s = C.return (x,())
+  let write x _ = C.return (x,())
 end

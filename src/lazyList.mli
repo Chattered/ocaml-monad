@@ -128,9 +128,6 @@ val apl : ('a -> 'b) t -> 'a t -> 'b t
 
 (** {6 Set operations} *)
 
-(** Tests whether an element belongs to the list.*)
-val mem : 'a -> 'a t -> bool
-
 (** Tests whether every element in the first list is equivalent to the elements
     in the second list. *)
 val subset : ?cmp:('a -> 'a -> bool) -> 'a t -> 'a t -> bool
@@ -138,6 +135,7 @@ val subset : ?cmp:('a -> 'a -> bool) -> 'a t -> 'a t -> bool
 (** Remove duplicates from a list. *)
 val unique : ?cmp:('a -> 'a -> bool) -> 'a t -> 'a t
 
+(** Tests whether an element belongs to the list.*)
 val mem : ?cmp:('a -> 'a -> bool) -> 'a -> 'a t -> bool
 
 (** Based on a partial order. Any element in the first argument which is

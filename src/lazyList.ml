@@ -15,7 +15,7 @@
 include BatLazyList
 module Bl = BatList
 
-let of_delay xs = Lazy.lazy_from_fun (fun () -> next (xs ()))
+let of_delay xs = Lazy.from_fun (fun () -> next (xs ()))
 
 let next l = Lazy.force l
 
@@ -47,7 +47,7 @@ let rec take_while p xs =
   lazy (match next xs with
             Nil -> Nil
           | Cons (y, ys) when p y -> Cons (y, take_while p ys)
-          | Cons (y, ys) -> Nil)
+          | Cons (_, _) -> Nil)
 
 let rec zip_with f xs ys =
   lazy
@@ -100,12 +100,12 @@ let rec scan f b xs =
                          Nil -> Nil
                        | Cons (x,xs) -> next (scan f (f b x) xs)))))
 
-let rec scan1 f xs =
+let scan1 f xs =
   lazy (match next xs with
             Nil -> Nil
           | Cons (x, xs) -> next (scan f x xs))
 
-let rec map_accum_l2 f acc xs =
+let map_accum_l2 f acc xs =
   let g a (_, x) =
     let (c, y) = f a x in (next c, (c, y))
   in let mapAcc = map_accum_l g acc (map (fun x -> (lazy acc, x)) xs) in
@@ -143,8 +143,8 @@ let mem ?(cmp = (=)) x xs =
   let rec loop xs =
     match next xs with
         Nil                      -> false
-      | Cons (y,ys) when cmp x y -> true
-      | Cons (y,ys)              -> loop ys
+      | Cons (y,_) when cmp x y -> true
+      | Cons (_,ys)              -> loop ys
   in loop xs
 
 let difference p xs ys =
@@ -242,14 +242,14 @@ let rec unzip xys =
 let cat_option xs = filter_map (fun x -> x) xs
 
 let rec is_forced xs =
-  if Lazy.lazy_is_val xs then
+  if Lazy.is_val xs then
     match next xs with
-        Cons (x,xs) -> is_forced xs
+        Cons (_,xs) -> is_forced xs
       | Nil         -> true
   else false
 
 let rec to_forced xs =
-  if Lazy.lazy_is_val xs then
+  if Lazy.is_val xs then
     match next xs with
         Cons (x,xs) -> lazy (Cons (x,to_forced xs))
       | Nil -> nil

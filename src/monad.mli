@@ -108,6 +108,7 @@ module MakePlus (M : BasePlus) : MonadPlus with type 'a m = 'a M.m
 module MakeLazyPlus (M : BaseLazyPlus) : LazyPlus with type 'a m = 'a M.m
 
 (** {6 Specific monads} *)
+
 (** The lazy monad. Automatically wraps calls lazily and forces as needed. *)
 module LazyM : Monad with type 'a m = 'a Lazy.t
 
@@ -208,6 +209,7 @@ end
 module type BaseCollectionM =
   sig
     include BaseLazyPlus
+
     (** [difference p xs ys] removes all elements from [xs] which are less than or
     equal to some element in [ys], according to the partial order [p]. *)
     val difference : ('a -> 'a -> bool) -> 'a m -> 'a m -> 'a m
